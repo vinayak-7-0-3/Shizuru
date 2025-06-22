@@ -166,15 +166,3 @@ class AppleMusic:
         # Approximate expiry: Apple tokens are usually valid for 1 hour (3600 seconds)
         expiry = int(time.time()) + 3600 - 60  # refresh a bit early
         return token, expiry
-
-
-async def main():
-    a = AppleMusic()
-    r = await a.search('adamas lisa', 'songs', 1)
-    tid = r['results']['songs'].get('data', [])[0].get('id')
-    if tid:
-        r = await a.get_song(tid)
-        print(r)
-
-if __name__ == "__main__":
-    asyncio.run(main())
