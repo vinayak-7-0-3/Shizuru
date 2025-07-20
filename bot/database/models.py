@@ -30,7 +30,11 @@ class PyObjectId(ObjectId):
 
         # validate after converting from str
         return core_schema.no_info_after_validator_function(
-            validate, core_schema.str_schema()
+            validate,
+            core_schema.union_schema([
+                core_schema.is_instance_schema(ObjectId),
+                core_schema.str_schema()
+            ])
         )
 
     @classmethod
