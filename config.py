@@ -25,6 +25,8 @@ class Config(object):
 
         SPOTIFY_CLIENT = getenv("SPOTIFY_CLIENT")
         SPOTIFY_SECRET = getenv("SPOTIFY_SECRET")
+
+        SECRET_KEY = getenv('SECRET_KEY')
     except:
         print("BOT : Essential Configs are missing")
         exit(1)
@@ -32,6 +34,9 @@ class Config(object):
     MULTI_CLIENTS = getenv("MULTI_CLIENTS", None) # example '["token1", "token2", "token3"]'
     METADATA_PROVIDER = getenv("METADATA_PROVIDER", 'apple-music')
 
+    
+    SECRET_ALGORITHM = getenv('SECRET_ALGORITHM', "HS256")
+    ACCESS_TOKEN_EXPIRE = int(getenv('ACCESS_TOKEN_EXPIRE', 60))
 
 
     # Do not touch (except for yk what you doin)

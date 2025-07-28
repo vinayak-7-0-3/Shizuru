@@ -3,9 +3,12 @@ from fastapi.responses import StreamingResponse
 from typing import List
 
 from ..database.connection import mongo
-from ..database.models import DBTrack, DBArtist, DBAlbum
+from ..database.models import DBTrack, DBArtist, DBAlbum, DBUser
 from ..utils.web import paginate, parse_range_header
+from ..utils.auth import verify_password, hash_password, create_access_token
 from ..tgclient import botmanager
+
+from .models import UserLogin, UserRegister
 
 
 router = APIRouter()
@@ -105,3 +108,25 @@ async def stream_song(track_id: str, request: Request):
         media_type=db_track.mime_type or "audio/mpeg",
         headers=headers
     )
+
+
+@router.post("/register")
+async def register(user: UserRegister):
+    if await mongo.db["users"].find_one({"username": user.username}):
+        raise HTTPException(status_code=400, detail="Username already exists")
+    hashed = hash_password(user.password)
+    new_user = DBUser(username=user.username, email=user.email, password_hash=hashed)
+    await mongo.db["users"].insert_one(new_user.dict(by_alias=True))
+    return {"message": "Registered successfully"}
+
+@router.post("/login")
+async def login(user: UserLogin):
+    db_user = await mongo.db["users"].find_one({"username": user.username})
+    if not db_user:
+        raise HTTPException(status_code=400, detail="Invalid username or password")
+
+    if not verify_password(user.password, db_user["password_hash"]):
+        raise HTTPException(status_code=400, detail="Invalid username or password")
+
+    token = create_access_token({"sub": db_user["username"]})
+    return {"access_token": token, "token_type": "bearer"}
