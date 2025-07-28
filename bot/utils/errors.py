@@ -3,3 +3,6 @@ class SpotifyError(Exception):
 
 class AppleMusicError(Exception):
     pass
+
+class FileNotFound(Exception):
+    pass

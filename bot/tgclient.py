@@ -8,6 +8,8 @@ from typing import Dict, List, Optional, Union
 from config import Config
 from bot.logger import LOGGER
 
+from .utils.streamer import ByteStreamer
+
 
 class BotType(Enum):
     MAIN = "main"
@@ -23,7 +25,7 @@ class Bot:
         self.bot_type = bot_type
         self.bot_id = bot_id or self._generate_bot_id(bot_token, bot_type)
         self.workload = 0
-        self.bytestreamer: Optional[object] = None
+        
         self._client: Optional[Client] = None
         self._is_running = False
         
@@ -36,6 +38,8 @@ class Bot:
         except Exception as e:
             LOGGER.error(f"Failed to create client for bot {self.bot_id}: {e}")
             raise
+
+        self.bytestreamer = ByteStreamer(self)
     
     def _generate_bot_id(self, bot_token: str, bot_type: BotType) -> str:
         """Generate unique bot ID"""
