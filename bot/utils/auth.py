@@ -2,13 +2,33 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status, Request
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer
+from typing import Optional
 from ..database.connection import mongo
 
 from config import Config
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+# hybrid approach for JWT in cookie
+class CookieBearer(HTTPBearer):
+    async def __call__(self, request: Request) -> Optional[str]:
+        cookie_token = request.cookies.get("access_token")
+        if cookie_token:
+            if cookie_token.startswith("Bearer "):
+                return cookie_token[7:]
+            return cookie_token
+        
+        """Fallback to Authorization header for API clients
+        authorization = request.headers.get("Authorization")
+        if authorization:
+            scheme, token = authorization.split(" ", 1)
+            if scheme.lower() == "bearer":
+                return token"""
+        
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+oauth2_scheme = CookieBearer()
 
 
 def verify_password(plain_password, hashed):

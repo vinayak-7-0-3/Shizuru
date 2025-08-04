@@ -1,11 +1,12 @@
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
+from fastapi import Response, Depends
 from typing import List
 
 from ..database.connection import mongo
 from ..database.models import DBTrack, DBArtist, DBAlbum, DBUser
 from ..utils.web import paginate, parse_range_header
-from ..utils.auth import verify_password, hash_password, create_access_token
+from ..utils.auth import *
 from ..tgclient import botmanager
 
 from .models import UserLogin, UserRegister
@@ -119,8 +120,9 @@ async def register(user: UserRegister):
     await mongo.db["users"].insert_one(new_user.dict(by_alias=True))
     return {"message": "Registered successfully"}
 
+
 @router.post("/login")
-async def login(user: UserLogin):
+async def login(user: UserLogin, response: Response):
     db_user = await mongo.db["users"].find_one({"username": user.username})
     if not db_user:
         raise HTTPException(status_code=400, detail="Invalid username or password")
@@ -129,4 +131,25 @@ async def login(user: UserLogin):
         raise HTTPException(status_code=400, detail="Invalid username or password")
 
     token = create_access_token({"sub": db_user["username"]})
-    return {"access_token": token, "token_type": "bearer"}
+    
+    response.set_cookie(
+        key="access_token",
+        value=f"Bearer {token}",
+        httponly=True,
+        secure=True,
+        samesite="lax",  # CSRF protection
+        max_age=Config.ACCESS_TOKEN_EXPIRE * 60  #seconds
+    )
+    
+    return {"message": "Login successful", "username": db_user["username"]}
+
+
+@router.post("/logout")
+async def logout(response: Response):
+    response.delete_cookie("access_token")
+    return {"message": "Logged out successfully"}
+
+
+@router.get("/me")
+async def get_me(current_user = Depends(get_current_user)):
+    return {"username": current_user["username"], "email": current_user["email"]}
