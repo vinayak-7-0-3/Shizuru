@@ -23,16 +23,18 @@ class Config(object):
 
         PORT = int(getenv('PORT', 8080))
 
-        SPOTIFY_CLIENT = getenv("SPOTIFY_CLIENT")
-        SPOTIFY_SECRET = getenv("SPOTIFY_SECRET")
-
         SECRET_KEY = getenv('SECRET_KEY')
     except:
         print("BOT : Essential Configs are missing")
         exit(1)
 
+    
     MULTI_CLIENTS = getenv("MULTI_CLIENTS", None) # example '["token1", "token2", "token3"]'
-    METADATA_PROVIDER = getenv("METADATA_PROVIDER", 'apple-music')
+    METADATA_PROVIDER = getenv("METADATA_PROVIDER", 'apple-music')  # else spotify
+
+    # only if metadata provider is set to spotify
+    SPOTIFY_CLIENT = getenv("SPOTIFY_CLIENT")
+    SPOTIFY_SECRET = getenv("SPOTIFY_SECRET")
 
     
     SECRET_ALGORITHM = getenv('SECRET_ALGORITHM', "HS256")

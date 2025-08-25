@@ -51,13 +51,13 @@ python -m bot
 - `BOT_USERNAME` - Your Telegram Bot username (with or without `@`) `(str)`
 - `ADMINS` - List of Admin users for the Bot (seperated by space) `(str)`
 - `MUSIC_CHANNELS` - List of music channel ID for indexing files (seperated by space) `(str)`
-- `SPOTIFY_CLIENT` - Client ID of Spotify App `(str)`
-- `SPOTIFY_SECRET` - Client Secret of Spotify App `(str)`
 - `SECRET_KEY` - Just some random string (you need this also in Frontend) `(str)`
 
 #### OPTIONAL VARIABLES
 - `MULTI_CLIENTS` - List of bot tokens (eg: ["6565575:asaca", "5645654:sdfsdf"]) `(str)`
 - `METADATA_PROVIDER` - Which provider to use for fetching metadata (default: spotify) `(str)`
+- `SPOTIFY_CLIENT` - Client ID of Spotify App (only needed if metadata provider is set to spotify)`(str)`
+- `SPOTIFY_SECRET` - Client Secret of Spotify App (only needed if metadata provider is set to spotify `(str)`
 
 ## CREDITS
 - TechZIndex - https://github.com/TechShreyash/TechZIndex
